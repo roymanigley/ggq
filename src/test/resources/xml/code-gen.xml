@@ -1,0 +1,16 @@
+<entities>
+    <entity name="Movie">
+        <variables>
+            <variable name="name" type="String" required="true" />
+            <variable name="date" type="java.time.LocalDate" required="true" />
+        </variables>
+        <relations>
+            <relation name="genre" type="Genre" mapping="ManyToOne" required="true" />
+        </relations>
+    </entity>
+    <entity name="Genre">
+        <variables>
+            <variable name="name" type="String" required="true" />
+        </variables>
+    </entity>
+</entities>
