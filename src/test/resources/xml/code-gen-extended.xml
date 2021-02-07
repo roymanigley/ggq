@@ -1,0 +1,73 @@
+<entities>
+    <entity name="Beer">
+        <variables>
+            <variable name="name" type="String" required="true" />
+            <variable name="price" type="Double" required="true" />
+            <variable name="description" type="String" required="true" />
+        </variables>
+        <relations>
+            <relation name="type" type="BeerType" mapping="ManyToOne" required="true" />
+        </relations>
+    </entity>
+    <entity name="BeerType">
+        <variables>
+            <variable name="name" type="String" required="true" />
+        </variables>
+    </entity>
+    <entity name="Customer">
+        <variables>
+            <variable name="firstName" type="String" required="true" />
+            <variable name="lastName" type="String" required="true" />
+        </variables>
+    </entity>
+    <entity name="BeerOrder">
+        <variables>
+            <variable name="remark" type="String" required="true" />
+            <variable name="deliveryDate" type="java.time.LocalDate" required="true" />
+            <variable name="orderDateTime" type="java.time.LocalDateTime" required="true" />
+        </variables>
+        <relations>
+            <relation name="customer" type="Customer" mapping="ManyToOne" required="true" />
+            <relation name="employee" type="Employee" mapping="ManyToOne" required="true" />
+        </relations>
+    </entity>
+    <entity name="OrderPosition">
+        <variables>
+            <variable name="orderCount" type="Double" required="true" />
+            <variable name="deliveredCount" required="true" type="Double" />
+            <variable name="returnedCount" required="true" type="Double" />
+        </variables>
+        <relations>
+            <relation name="beerOrder" type="BeerOrder" mapping="ManyToOne" required="true" />
+        </relations>
+    </entity>
+    <entity name="CustomerAddress">
+        <variables>
+            <variable name="recipient" type="String" required="true" />
+            <variable name="street" type="String" required="true" />
+            <variable name="pc" type="String" required="true" />
+            <variable name="city" type="String" required="true" />
+        </variables>
+        <relations>
+            <relation name="customer" type="Customer" mapping="ManyToOne" required="true" />
+        </relations>
+    </entity>
+    <entity name="User">
+        <variables>
+            <variable name="login" type="String" required="true" />
+            <variable name="password" type="String" required="true" />
+        </variables>
+        <relations>
+            <relation name="customer" type="Customer" mapping="OneToOne" required="true" />
+        </relations>
+    </entity>
+    <entity name="Employee">
+        <variables>
+            <variable name="firstName" type="String" required="true" />
+            <variable name="lastName" type="String" required="true" />
+        </variables>
+        <relations>
+            <relation name="customer" type="Customer" mapping="OneToOne" required="true" />
+        </relations>
+    </entity>
+</entities>
