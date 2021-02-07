@@ -1,0 +1,17 @@
+<entity name="JustAnEntity">
+    <variables>
+        <variable name="lastName" type="String" required="true" />
+        <variable name="firstName" type="String" required="false" />
+        <variable name="counter" type="Integer" required="false" />
+        <variable name="price" type="Double" required="true" />
+        <variable name="rabatt" type="Double" required="false" />
+        <variable name="date" type="java.time.LocalDate" required="true" />
+        <variable name="time" type="java.time.LocalDateTime" required="true" />
+    </variables>
+    <relations>
+        <relation name="genre" type="Genre" mapping="ManyToOne" required="true" />
+        <relation name="typ" type="Genre" mapping="ManyToOne" required="false" />
+        <relation name="customer" type="Customer" mapping="OneToOne" required="true" />
+        <relation name="user" type="User" mapping="OneToOne" required="false" />
+    </relations>
+</entity>
