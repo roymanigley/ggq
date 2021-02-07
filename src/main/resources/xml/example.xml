@@ -1,0 +1,22 @@
+<entities>
+    <entity name="Movie">
+        <variables>
+            <variable name="title" type="String" required="true" />
+            <variable name="description" type="String" required="false" />
+            <variable name="rating" type="Integer" required="false" />
+            <variable name="price" type="Double" required="true" />
+            <variable name="discount" type="Double" required="false" />
+            <variable name="releaseDate" type="java.time.LocalDate" required="true" />
+            <variable name="lastSeen" type="java.time.LocalDateTime" required="false" />
+        </variables>
+        <relations>
+            <relation name="genre" type="Genre" mapping="ManyToOne" required="true" />
+        </relations>
+    </entity>
+    <entity name="Genre">
+        <variables>
+            <variable name="name" type="String" required="true" />
+            <variable name="description" type="String" required="false" />
+        </variables>
+    </entity>
+</entities>
