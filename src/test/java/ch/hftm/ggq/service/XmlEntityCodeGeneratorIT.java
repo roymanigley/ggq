@@ -49,7 +49,7 @@ public class XmlEntityCodeGeneratorIT {
     }
 
     @Test
-    void test() throws IOException, URISyntaxException {
+    void testJPA_REST_Templates() throws IOException, URISyntaxException {
 
         // BEFORE
         final Path projectDirPath = Files.createTempDirectory("DUMMY");
