@@ -72,6 +72,10 @@
                 </dependency>
                 <dependency>
                     <groupId>io.quarkus</groupId>
+                    <artifactId>quarkus-elytron-security-properties-file</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>io.quarkus</groupId>
                     <artifactId>quarkus-junit5</artifactId>
                     <scope>test</scope>
                 </dependency>
@@ -86,7 +90,6 @@
                     <version>1.10.19</version>
                     <scope>test</scope>
                 </dependency>
-                <!-- https://mvnrepository.com/artifact/org.assertj/assertj-core -->
                 <dependency>
                     <groupId>org.assertj</groupId>
                     <artifactId>assertj-core</artifactId>

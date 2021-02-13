@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import io.quarkus.panache.common.Page;
 
 import <xsl:value-of select="concat($BASE_PACKAGE, '.service.dto.', entity/@name, 'Dto')" />;
 import <xsl:value-of select="concat($BASE_PACKAGE, '.service.impl.', entity/@name, 'ServiceImpl')" />;
@@ -21,6 +22,8 @@ import java.util.Collections;
 import java.util.Optional;
 
 public class <xsl:value-of select="entity/@name" />ServiceTest {
+
+    private static final Page DEFAULT_PAGE = Page.of(0, 25);
 
     @Mock
     private <xsl:value-of select="entity/@name" />Repository repository;
@@ -34,20 +37,20 @@ public class <xsl:value-of select="entity/@name" />ServiceTest {
 
     @Test
     public void findAllRecordsShouldBeCalled() {
-        when(repository.findAll()).thenReturn(Collections.emptyList());
-        service.findAll();
-        verify(repository).findAll();
-        verify(repository, never()).findById(any());
+        when(repository.findAll(DEFAULT_PAGE)).thenReturn(Collections.emptyList());
+        service.findAll(DEFAULT_PAGE);
+        verify(repository).findAll(DEFAULT_PAGE);
+        verify(repository, never()).findRecordById(any());
         verify(repository, never()).save(any());
         verify(repository, never()).delete(any());
     }
 
     @Test
-    public void findByIdShouldBeCalled() {
-        when(repository.findById(anyLong())).thenReturn(Optional.empty());
+    public void findRecordByIdShouldBeCalled() {
+        when(repository.findRecordById(anyLong())).thenReturn(Optional.empty());
         service.findById(1L);
-        verify(repository).findById(any());
-        verify(repository, never()).findAll();
+        verify(repository).findRecordById(any());
+        verify(repository, never()).findAll(DEFAULT_PAGE);
         verify(repository, never()).save(any());
         verify(repository, never()).delete(any());
     }
@@ -58,8 +61,8 @@ public class <xsl:value-of select="entity/@name" />ServiceTest {
         when(repository.save(any())).thenReturn(<xsl:value-of select="entity/@name" />Mapper.toEntity(record));
         service.save(record);
         verify(repository).save(any());
-        verify(repository, never()).findAll();
-        verify(repository, never()).findById(any());
+        verify(repository, never()).findAll(DEFAULT_PAGE);
+        verify(repository, never()).findRecordById(any());
         verify(repository, never()).delete(any());
     }
 
@@ -67,8 +70,8 @@ public class <xsl:value-of select="entity/@name" />ServiceTest {
     public void deleteRecordShouldBeCalled() {
         service.delete(1L);
         verify(repository).delete(any());
-        verify(repository, never()).findAll();
-        verify(repository, never()).findById(any());
+        verify(repository, never()).findAll(DEFAULT_PAGE);
+        verify(repository, never()).findRecordById(any());
         verify(repository, never()).save(any());
     }
 }

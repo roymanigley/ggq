@@ -50,19 +50,29 @@ public class XmlEntityCodeGeneratorIT {
 
     @Test
     void testJPA_REST_Templates() throws IOException, URISyntaxException {
+        final TemplateType templateType = TemplateType.JPA_REST;
+        testTemplate(templateType, true);
+    }
 
+    @Test
+    void testHIBERNATE_PANACHE_REST_Templates() throws IOException, URISyntaxException {
+        final TemplateType templateType = TemplateType.HIBERNATE_PANACHE_REST;
+        testTemplate(templateType, true);
+    }
+
+    private void testTemplate(TemplateType templateType, boolean withCleanup) throws IOException, URISyntaxException {
         // BEFORE
-        final Path projectDirPath = Files.createTempDirectory("DUMMY");
-        final Path xmlPathEntities = Path.of(XmlEntityCodeGeneratorIT.class.getClassLoader().getResource("xml/code-gen-extended.xml").toURI());
+        final Path projectDirPath = Files.createTempDirectory(templateType.toString());
+        final Path xmlPathEntities = Path.of(XmlEntityCodeGeneratorIT.class.getClassLoader().getResource("xml/example-extended.xml").toURI());
         final String basePackage = "ch.example";
         final EntitiesModel entitiesModel = xmlEntitiesModelLoader.loadEntitiesModel(xmlPathEntities);
         final ProjectModel projectModel = quarkusProjectInitializer.initProject(projectDirPath, basePackage);
 
         // WHEN
-        codeGenerator.generateFrom(xmlPathEntities, projectDirPath, basePackage, TemplateType.JPA_REST);
+        codeGenerator.generateFrom(xmlPathEntities, projectDirPath, basePackage, templateType);
 
         // THEN
-        templateRepository.allEntityTemplatesFor(TemplateType.JPA_REST, projectModel.getBasePackagePath()).forEach((path, template) -> {
+        templateRepository.allEntityTemplatesFor(templateType, projectModel.getBasePackagePath()).forEach((path, template) -> {
             entitiesModel.getEntities().forEach(model -> {
                 String pathToCheck = path.replace("{EntityName}", model.getName());
                 final Path pathToGeneratedFile = Paths.get(projectModel.getProjectDir(), pathToCheck);
@@ -71,7 +81,7 @@ public class XmlEntityCodeGeneratorIT {
             });
         });
 
-        templateRepository.allNonEntityTemplatesFor(TemplateType.JPA_REST, projectModel.getBasePackagePath()).forEach((path, template) -> {
+        templateRepository.allNonEntityTemplatesFor(templateType, projectModel.getBasePackagePath()).forEach((path, template) -> {
             final Path pathToGeneratedFile = Paths.get(projectModel.getProjectDir(), path);
             System.out.println(pathToGeneratedFile.toString());
             assertThat(Files.exists(pathToGeneratedFile)).isTrue();
@@ -79,10 +89,12 @@ public class XmlEntityCodeGeneratorIT {
         });
         checkIfCanBuildWithMaven(projectDirPath);
 
-        Files.walk(projectDirPath)
-                .sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .forEach(File::delete);
+        if (withCleanup) {
+            Files.walk(projectDirPath)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+        }
     }
 
     private void checkIfCanBuildWithMaven(Path projectDirPath) throws IOException {

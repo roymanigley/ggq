@@ -52,6 +52,7 @@ public class XslTransformerServiceImpl implements XslTransformerService {
 
     @Override
     public void transform(Reader xmlReader, InputStream xslStream, Path output, Map<String, String> params) throws TransformerException, IOException {
+        System.out.println(output);
         try (final InputStreamReader xslReader = new InputStreamReader(xslStream);) {
             Source xmlSrc = new StreamSource(xmlReader);
             Source xslSrc = new StreamSource(xslReader);

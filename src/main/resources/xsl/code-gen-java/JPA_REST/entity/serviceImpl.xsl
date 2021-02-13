@@ -29,6 +29,7 @@ public class <xsl:value-of select="entity/@name" />ServiceImpl implements <xsl:v
     }
 
     @Transactional
+    @Override
     public List&lt;<xsl:value-of select="entity/@name" />Dto&gt; findAll() {
         return repository.findAll().stream()
             .map(<xsl:value-of select="entity/@name" />Mapper::toDto)
@@ -36,12 +37,14 @@ public class <xsl:value-of select="entity/@name" />ServiceImpl implements <xsl:v
     }
 
     @Transactional
+    @Override
     public Optional&lt;<xsl:value-of select="entity/@name" />Dto&gt; findById(Long id) {
         return repository.findById(id)
             .map(<xsl:value-of select="entity/@name" />Mapper::toDto);
     }
 
     @Transactional
+    @Override
     public <xsl:value-of select="entity/@name" />Dto save(<xsl:value-of select="entity/@name" />Dto record) {
         <xsl:value-of select="entity/@name" /> entity = <xsl:value-of select="entity/@name" />Mapper.toEntity(record);
         entity = repository.save(entity);
@@ -49,6 +52,7 @@ public class <xsl:value-of select="entity/@name" />ServiceImpl implements <xsl:v
     }
 
     @Transactional
+    @Override
     public void delete(Long id) {
         repository.delete(id);
     }

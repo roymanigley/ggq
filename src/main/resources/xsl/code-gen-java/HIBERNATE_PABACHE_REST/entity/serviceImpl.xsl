@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import io.quarkus.panache.common.Page;
 
 import <xsl:value-of select="concat($BASE_PACKAGE, '.domain.', entity/@name)" />;
 import <xsl:value-of select="concat($BASE_PACKAGE, '.repository.', entity/@name)" />Repository;
@@ -29,26 +30,30 @@ public class <xsl:value-of select="entity/@name" />ServiceImpl implements <xsl:v
     }
 
     @Transactional
-    public List&lt;<xsl:value-of select="entity/@name" />Dto&gt; findAll() {
-        return repository.findAll().stream()
+    @Override
+    public List&lt;<xsl:value-of select="entity/@name" />Dto&gt; findAll(Page page) {
+        return repository.findAll(page).stream()
             .map(<xsl:value-of select="entity/@name" />Mapper::toDto)
             .collect(Collectors.toList());
     }
 
     @Transactional
+    @Override
     public Optional&lt;<xsl:value-of select="entity/@name" />Dto&gt; findById(Long id) {
-        return repository.findById(id)
+        return repository.findRecordById(id)
             .map(<xsl:value-of select="entity/@name" />Mapper::toDto);
     }
 
     @Transactional
+    @Override
     public <xsl:value-of select="entity/@name" />Dto save(<xsl:value-of select="entity/@name" />Dto record) {
-        <xsl:value-of select="entity/@name" /> entity = <xsl:value-of select="entity/@name" />Mapper.toEntity(record);
-        entity = repository.save(entity);
+        final <xsl:value-of select="entity/@name" /> fromDto = <xsl:value-of select="entity/@name" />Mapper.toEntity(record);
+        final <xsl:value-of select="entity/@name" /> entity = repository.save(fromDto);
         return <xsl:value-of select="entity/@name" />Mapper.toDto(entity);
     }
 
     @Transactional
+    @Override
     public void delete(Long id) {
         repository.delete(id);
     }

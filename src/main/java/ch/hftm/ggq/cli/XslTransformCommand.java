@@ -13,7 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-@Command(name = "xslTransformer", description = "Transform XML by using a XSL stylesheet")
+@Command(name = "xslTransformer", description = "Transform XML by using a XSL stylesheet", mixinStandardHelpOptions = true, version = MainCommand.version)
 public class XslTransformCommand implements Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(XslTransformCommand.class);

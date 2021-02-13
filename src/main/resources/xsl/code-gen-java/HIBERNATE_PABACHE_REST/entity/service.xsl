@@ -10,12 +10,13 @@
 
 import java.util.List;
 import java.util.Optional;
+import io.quarkus.panache.common.Page;
 
 import <xsl:value-of select="concat($BASE_PACKAGE, '.service.dto.', entity/@name, 'Dto')" />;
 
 public interface <xsl:value-of select="entity/@name" />Service {
 
-    List&lt;<xsl:value-of select="entity/@name" />Dto&gt; findAll();
+    List&lt;<xsl:value-of select="entity/@name" />Dto&gt; findAll(Page page);
 
     Optional&lt;<xsl:value-of select="entity/@name" />Dto&gt; findById(Long id);
 

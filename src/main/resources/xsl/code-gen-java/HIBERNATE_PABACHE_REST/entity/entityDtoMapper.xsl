@@ -29,6 +29,15 @@ public class <xsl:value-of select="entity/@name" />Mapper {
             </xsl:for-each><xsl:for-each select="entity/relations/relation">.<xsl:value-of select="@name" />(dto.get<xsl:value-of select="ggq:firstToUpperCase(concat(@name, 'Id'))" />() != null ? new <xsl:value-of select="@type"/>().id(dto.get<xsl:value-of select="ggq:firstToUpperCase(concat(@name, 'Id'))" />()) : null)
             </xsl:for-each>;
     }
+
+
+
+    public static void mergeEntities(<xsl:value-of select="entity/@name" /> managed, <xsl:value-of select="entity/@name" /> fromDto) {
+        managed
+            <xsl:for-each select="entity/variables/variable">.<xsl:value-of select="@name" />(fromDto.get<xsl:value-of select="ggq:firstToUpperCase(@name)" />())
+            </xsl:for-each><xsl:for-each select="entity/relations/relation">.<xsl:value-of select="@name" />(fromDto.get<xsl:value-of select="ggq:firstToUpperCase(@name)" />())
+            </xsl:for-each>;
+    }
 }
     </xsl:template>
 </xsl:stylesheet>

@@ -6,6 +6,7 @@
     <xsl:param name="BASE_PACKAGE" select="'ch.example'"/>
     <xsl:template match="/">package <xsl:value-of select="$BASE_PACKAGE" />.web.rest;
 
+import io.quarkus.panache.common.Page;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import io.restassured.specification.RequestSpecification;
@@ -44,7 +45,7 @@ public class <xsl:value-of select="entity/@name" />ResourceIT {
     }
 
     private Integer countRecords() {
-        return service.findAll().size();
+        return service.findAll(Page.ofSize(9999999)).size();
     }
 
     @Test
@@ -197,7 +198,7 @@ public class <xsl:value-of select="entity/@name" />ResourceIT {
             .then()
             .statusCode(Status.ACCEPTED.getStatusCode());
 
-            assertThat(service.findById(record.getId()).isEmpty()).isTrue();
+            assertThat(!service.findById(record.getId()).isPresent()).isTrue();
             assertThat(recordsCountBeforeDelete ).isGreaterThan(countRecords());
     }
 }

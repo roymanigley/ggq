@@ -4,55 +4,49 @@
     <xsl:param name="BASE_PACKAGE" select="'ch.example'"/>
 <xsl:template match="/">package <xsl:value-of select="$BASE_PACKAGE" />.repository.impl;
 
-
 import java.util.List;
 import java.util.Optional;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
+import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import javax.transaction.Transactional;
+import io.quarkus.panache.common.Page;
 
 import <xsl:value-of select="concat($BASE_PACKAGE, '.domain.', entity/@name)" />;
+import <xsl:value-of select="concat($BASE_PACKAGE, '.service.mapper.', entity/@name, 'Mapper')" />;
 import <xsl:value-of select="concat($BASE_PACKAGE, '.repository.', entity/@name)" />Repository;
 
 @ApplicationScoped
-public class <xsl:value-of select="entity/@name" />RepositoryImpl implements <xsl:value-of select="entity/@name" />Repository {
-
-    @PersistenceContext
-    EntityManager em;
-
-    @Inject
-    public <xsl:value-of select="entity/@name" />RepositoryImpl(EntityManager em) {
-        this.em = em;
-    }
-
-    public <xsl:value-of select="entity/@name" />RepositoryImpl() { }
+public class <xsl:value-of select="entity/@name" />RepositoryImpl implements PanacheRepository&lt;<xsl:value-of select="entity/@name" />&gt;, <xsl:value-of select="entity/@name" />Repository {
 
     @Override
-    @Transactional
-    public List&lt;<xsl:value-of select="entity/@name" />&gt; findAll() {
-        return em.createQuery("from <xsl:value-of select="entity/@name" />", <xsl:value-of select="entity/@name" />.class)
-            .getResultList();
+    public List&lt;<xsl:value-of select="entity/@name" />&gt; findAll(Page page) {
+        return findAll().page(page).list();
     }
 
-    @Override
     @Transactional
-    public Optional&lt;<xsl:value-of select="entity/@name" />&gt; findById(Long id) {
-        return (Optional&lt;<xsl:value-of select="entity/@name" />&gt;) Optional.ofNullable(em.find(<xsl:value-of select="entity/@name" />.class, id));
+    @Override
+    public Optional&lt;<xsl:value-of select="entity/@name" />&gt; findRecordById(Long id) {
+        return findByIdOptional(id);
     }
 
-    @Override
     @Transactional
+    @Override
     public <xsl:value-of select="entity/@name" /> save(<xsl:value-of select="entity/@name" /> record) {
-        return em.merge(record);
+        <xsl:value-of select="entity/@name" /> managed;
+        if (record.getId() != null) {
+            managed = findByIdOptional(record.getId()).orElseGet(<xsl:value-of select="entity/@name" />::new);
+            <xsl:value-of select="entity/@name" />Mapper.mergeEntities(managed, record);
+        } else {
+            managed = record;
+        }
+        persist(managed);
+        return managed;
     }
 
-    @Override
     @Transactional
+    @Override
     public void delete(Long id) {
-        findById(id).ifPresent(em::remove);
+        deleteById(id);
     }
 }
     </xsl:template>

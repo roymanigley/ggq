@@ -12,7 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-@Command(name = "codeGenerator", description = "Generate boilerplate code for Entities")
+@Command(name = "codeGenerator", description = "Generate boilerplate code for Entities", mixinStandardHelpOptions = true, version = MainCommand.version)
 public class CodeGeneratorCommand implements Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(CodeGeneratorCommand.class);
@@ -23,6 +23,8 @@ public class CodeGeneratorCommand implements Runnable {
     String input;
     @Option(names = {"--basePackage"}, description = "Base package", defaultValue = "ch.example")
     String basePackage;
+    @Option(names = {"--type"}, required = true, defaultValue = "JPA_REST", description = "template types (valid values: ${COMPLETION-CANDIDATES})")
+    TemplateType templateType;
 
     XmlEntityCodeGenerator codeGenerator;
 
@@ -39,7 +41,7 @@ public class CodeGeneratorCommand implements Runnable {
         LOG.debug("validating input");
         if (validateInput(inputPath)) {
             LOG.debug("input valid");
-            codeGenerator.generateFrom(inputPath, projectDirPath, basePackage, TemplateType.JPA_REST);
+            codeGenerator.generateFrom(inputPath, projectDirPath, basePackage, templateType);
             CliPrinter.info("generated");
         } else {
             LOG.debug("input not valid");
@@ -50,6 +52,7 @@ public class CodeGeneratorCommand implements Runnable {
     private void logInput() {
         LOG.debug("projectDir: {}", projectDir);
         LOG.debug("input    : {}", input);
+        LOG.debug("type     : {}", templateType);
     }
 
     boolean validateInput(Path input) {
