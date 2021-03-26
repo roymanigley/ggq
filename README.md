@@ -114,7 +114,7 @@ Generate boilerplate code for Entities
       --type=<templateType>
                         template types (valid values: JPA_REST,
                           HIBERNATE_PANACHE_REST, MONGO_PANACHE_REST,
-                          MONGO_PANACHE_REST_OIDC)
+                          MONGO_PANACHE_REST_OIDC, REACTIVE_PANACHE_REST)
   -V, --version         Print version information and exit.
 ```
 

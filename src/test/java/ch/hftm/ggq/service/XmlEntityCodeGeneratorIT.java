@@ -73,6 +73,13 @@ public class XmlEntityCodeGeneratorIT {
         testTemplate(templateType, true, true);
     }
 
+    @Test
+    void testREACTIVE_PANACHE_REST_Templates() throws IOException, URISyntaxException {
+        final TemplateType templateType = TemplateType.REACTIVE_PANACHE_REST;
+        // IT skipped because it neads a running postgres db instance
+        testTemplate(templateType, true, true);
+    }
+
     private void testTemplate(TemplateType templateType, boolean withCleanup, boolean skipIntegrationTests) throws IOException, URISyntaxException {
         // BEFORE
         final Path projectDirPath = Files.createTempDirectory(templateType.toString());
