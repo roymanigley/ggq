@@ -7,7 +7,6 @@
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -18,7 +17,6 @@ import javax.ws.rs.core.Response;
 import <xsl:value-of select="concat($BASE_PACKAGE, '.service.dto.', entity/@name, 'Dto')" />;
 import <xsl:value-of select="concat($BASE_PACKAGE, '.service.', entity/@name, 'Service')" />;
 import <xsl:value-of select="concat($BASE_PACKAGE, '.util.', entity/@name, 'TestUtil')" />;
-import <xsl:value-of select="concat($BASE_PACKAGE, '.web.rest.exceptions.ExceptionDto')" />;
 
 import java.util.Optional;
 
@@ -55,18 +53,6 @@ public class <xsl:value-of select="entity/@name" />ResourceTest {
         verify(service, never()).delete(any());
     }
 
-
-    @Test
-    public void whenNoRecordFoundExceptionDTOShouldBeReturned() {
-        when(service.findById(1L)).thenReturn(Optional.empty());
-        final Response response = resource.findById(1L);
-        assertThat(response.getStatus()).isEqualTo(404);
-        verify(service).findById(any());
-        verify(service, never()).findAll();
-        verify(service, never()).save(any());
-        verify(service, never()).delete(any());
-    }
-
     @Test
     public void whenCreateSaveRecordShouldBeCalled() {
         final <xsl:value-of select="entity/@name" />Dto record = <xsl:value-of select="entity/@name" />TestUtil.createRandomDto(null);
@@ -85,19 +71,6 @@ public class <xsl:value-of select="entity/@name" />ResourceTest {
         final Response response = resource.create(record);
         assertThat(response.getStatus()).isEqualTo(400);
         verify(service, never()).save(any());
-        verify(service, never()).findAll();
-        verify(service, never()).findById(any());
-        verify(service, never()).delete(any());
-    }
-
-    @Test
-    public void whenCreateFailExceptionDTOShouldBeReturned() {
-        final <xsl:value-of select="entity/@name" />Dto record = <xsl:value-of select="entity/@name" />TestUtil.createRandomDto(null);
-        when(service.save(any(<xsl:value-of select="entity/@name" />Dto.class))).thenThrow(ConstraintViolationException.class);
-        final Response response = resource.create(record);
-        assertThat(response.getStatus()).isEqualTo(500);
-        assertThat(response.getEntity()).isInstanceOf(ExceptionDto.class);
-        verify(service).save(any());
         verify(service, never()).findAll();
         verify(service, never()).findById(any());
         verify(service, never()).delete(any());
@@ -127,35 +100,9 @@ public class <xsl:value-of select="entity/@name" />ResourceTest {
     }
 
     @Test
-    public void whenUpdateFailExceptionDTOShouldBeReturned() {
-        final <xsl:value-of select="entity/@name" />Dto record = <xsl:value-of select="entity/@name" />TestUtil.createRandomDto(null);
-        record.setId(1L);
-        when(service.save(any(<xsl:value-of select="entity/@name" />Dto.class))).thenThrow(ConstraintViolationException.class);
-        final Response response = resource.update(record);
-        assertThat(response.getStatus()).isEqualTo(500);
-        assertThat(response.getEntity()).isInstanceOf(ExceptionDto.class);
-        verify(service).save(any());
-        verify(service, never()).findAll();
-        verify(service, never()).findById(any());
-        verify(service, never()).delete(any());
-    }
-
-    @Test
     public void deleteRecordShouldBeCalled() {
         final Response response = resource.delete(1L);
         assertThat(response.getStatus()).isEqualTo(202);
-        verify(service).delete(any());
-        verify(service, never()).findAll();
-        verify(service, never()).findById(any());
-        verify(service, never()).save(any());
-    }
-
-    @Test
-    public void whenDeleteFailExceptionDTOShouldBeReturned() {
-        doThrow(ConstraintViolationException.class).when(service).delete(1L);
-        final Response response = resource.delete(1L);
-        assertThat(response.getStatus()).isEqualTo(500);
-        assertThat(response.getEntity()).isInstanceOf(ExceptionDto.class);
         verify(service).delete(any());
         verify(service, never()).findAll();
         verify(service, never()).findById(any());

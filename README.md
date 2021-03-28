@@ -25,8 +25,10 @@ The following types can be generated:
 
 - `JPA_REST` → REST Application incl. Swagger using EntityManager (100% test coverage)
 - `HIBERNATE_PANACHE_REST` → REST Application with pagination incl. Swagger using PanacheRepository (100% test coverage)
+- `JPA_SPRING_REST` → REST Application with pagination incl. Swagger using Spring (data, di, web)  (100% test coverage)
 - `MONGO_PANACHE_REST` → REST Application incl. Swagger using ReactiveMongoPanacheRepository (~80% test coverage)
 - `MONGO_PANACHE_REST_OIDC` → REST Application with OIDC (KeyCloak) incl. Swagger using ReactiveMongoPanacheRepository (~80% test coverage)
+- `HIBERNATE_PANACHE_REST_KAFKA` → Application with pagination incl. Swagger using PanacheRepository every UPDATE, CREATE or DELETE of an Entity is published to Kafka (~75% test coverage)
 
 The following content is generated based on the entities 
 
@@ -45,8 +47,8 @@ The following files are generated once
 - pom.xml
 - basic index.html page
 - application.propperties (test, dev, und prod)
-- Exception Handling (muss noch ausgebaut werden)
-- RandomGenerator.java (für tests)
+- Exception Handling
+- RandomGenerator.java (for tests)
 - README.md
 - docker-compose.xml
 
@@ -122,8 +124,8 @@ Generate boilerplate code for Entities
                         Quarkus project directory
       --type=<templateType>
                         template types (valid values: JPA_REST,
-                          HIBERNATE_PANACHE_REST, MONGO_PANACHE_REST,
-                          MONGO_PANACHE_REST_OIDC)
+                          HIBERNATE_PANACHE_REST, JPA_SPRING_REST, MONGO_PANACHE_REST,
+                          MONGO_PANACHE_REST_OIDC, HIBERNATE_PANACHE_REST_KAFKA)
   -V, --version         Print version information and exit.
 ```
 

@@ -23,19 +23,22 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import <xsl:value-of select="concat($BASE_PACKAGE, '.service.', entity/@name, 'Service')" />;
 import <xsl:value-of select="concat($BASE_PACKAGE, '.service.dto.', entity/@name, 'Dto')" />;
-import <xsl:value-of select="concat($BASE_PACKAGE, '.web.rest.exceptions.ExceptionDto')" />;
 
-@Tag(name = "<xsl:value-of select="concat($BASE_PACKAGE, '.domain.', entity/@name)" />Resource")
+@Tag(name = "<xsl:value-of select="concat($BASE_PACKAGE, '.web.rest.', entity/@name)" />Resource")
 @Path("/api/<xsl:value-of select="str:toLowerCase(str:new(entity/@name))"/>")
 @RequestScoped
 public class <xsl:value-of select="entity/@name" />Resource {
 
     private <xsl:value-of select="entity/@name" />Service service;
+
+    private Logger log = LoggerFactory.getLogger(<xsl:value-of select="entity/@name" />Resource.class);
 
     @Inject
     public <xsl:value-of select="entity/@name" />Resource(<xsl:value-of select="entity/@name" />Service service) {
@@ -46,6 +49,7 @@ public class <xsl:value-of select="entity/@name" />Resource {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "find all records")
     public Response findAll() {
+        log.info("GET: /api/<xsl:value-of select="str:toLowerCase(str:new(entity/@name))"/>");
         return Response.ok(service.findAll()).build();
     }
 
@@ -54,6 +58,7 @@ public class <xsl:value-of select="entity/@name" />Resource {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "find single record by id")
     public Response findById(@PathParam("id") Long id) {
+        log.info("GET: /api/<xsl:value-of select="str:toLowerCase(str:new(entity/@name))"/>/" + id);
         return service.findById(id)
             .map(record -> Response.ok(record))
             .orElseGet(() -> Response.status(Status.NOT_FOUND))
@@ -65,15 +70,12 @@ public class <xsl:value-of select="entity/@name" />Resource {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "create a record")
     public Response create(@Valid <xsl:value-of select="entity/@name" />Dto record) {
+        log.info("POST: /api/<xsl:value-of select="str:toLowerCase(str:new(entity/@name))"/> data: " + record);
         return Optional.of(record)
             .filter(r -> r.getId() == null)
-            .map(r -> {
-                try {
-                    return Response.status(Status.CREATED).entity(service.save(r));
-                } catch (Exception e) {
-                    return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ExceptionDto.from(e));
-                }
-            })
+            .map(r ->
+                Response.status(Status.CREATED).entity(service.save(r))
+            )
             .orElseGet(() -> Response.status(Status.BAD_REQUEST))
             .build();
     }
@@ -83,15 +85,12 @@ public class <xsl:value-of select="entity/@name" />Resource {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "update a record")
     public Response update(@Valid <xsl:value-of select="entity/@name" />Dto record) {
+        log.info("PUT: /api/<xsl:value-of select="str:toLowerCase(str:new(entity/@name))"/> data: " + record);
         return Optional.of(record)
             .filter(r -> r.getId() != null)
-            .map(r -> {
-                try {
-                    return Response.status(Status.OK).entity(service.save(r));
-                } catch (Exception e) {
-                    return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ExceptionDto.from(e));
-                }
-        })
+            .map(r ->
+                Response.status(Status.OK).entity(service.save(r))
+        )
         .orElseGet(() -> Response.status(Status.BAD_REQUEST))
         .build();
     }
@@ -100,12 +99,9 @@ public class <xsl:value-of select="entity/@name" />Resource {
     @Path("/{id}")
     @Operation(summary = "delete a record")
     public Response delete(@PathParam("id") Long id) {
-        try {
-            service.delete(id);
-            return Response.accepted().build();
-        } catch(Exception e) {
-            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ExceptionDto.from(e)).build();
-        }
+        log.info("DELETE: /api/<xsl:value-of select="str:toLowerCase(str:new(entity/@name))"/>/" + id);
+        service.delete(id);
+        return Response.accepted().build();
     }
 }
     </xsl:template>

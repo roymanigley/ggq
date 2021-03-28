@@ -115,8 +115,40 @@ public class <xsl:value-of select="entity/@name" />ResourceIT {
     <xsl:for-each select="entity/variables/variable[@required = 'true']">
     @Test
     public void validationShouldFailOnCreate_missing_<xsl:value-of select="@name" />() {
+        record.<xsl:value-of select="@name" />(null);
+
+        given()
+            .when()
+            .body(record)
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .post("api/<xsl:value-of select="ggq:toLowerCase(/entity/@name)"/>")
+            .then()
+            .statusCode(Status.BAD_REQUEST.getStatusCode());
+    }
+    </xsl:for-each>
+
+    <xsl:for-each select="entity/variables/variable[@required = 'true']">
+    @Test
+    public void validationShouldFailOnUpdate_missing_<xsl:value-of select="@name" />() {
         record = service.save(record)
             .<xsl:value-of select="@name" />(null);
+        given()
+            .when()
+            .body(record)
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .put("api/<xsl:value-of select="ggq:toLowerCase(/entity/@name)"/>")
+            .then()
+            .statusCode(Status.BAD_REQUEST.getStatusCode());
+    }
+    </xsl:for-each>
+
+    <xsl:for-each select="entity/relations/relation[@required = 'true']">
+    @Test
+    public void validationShouldFailOnCreate_missing_<xsl:value-of select="@name" />Id() {
+        record.<xsl:value-of select="@name" />Id(null);
+
         given()
             .when()
             .body(record)
@@ -129,7 +161,7 @@ public class <xsl:value-of select="entity/@name" />ResourceIT {
     </xsl:for-each>
     <xsl:for-each select="entity/relations/relation[@required = 'true']">
     @Test
-    public void validationShouldFailOnCreate_missing_<xsl:value-of select="@name" />Id() {
+    public void validationShouldFailOnUpdate_missing_<xsl:value-of select="@name" />Id() {
         record = service.save(record)
             .<xsl:value-of select="@name" />Id(null);
         given()
@@ -137,7 +169,7 @@ public class <xsl:value-of select="entity/@name" />ResourceIT {
             .body(record)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .post("api/<xsl:value-of select="ggq:toLowerCase(/entity/@name)"/>")
+            .put("api/<xsl:value-of select="ggq:toLowerCase(/entity/@name)"/>")
             .then()
             .statusCode(Status.BAD_REQUEST.getStatusCode());
     }

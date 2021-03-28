@@ -2,7 +2,8 @@
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:xalan="http://xml.apache.org/xalan"
                 xmlns:ggq="xalan://ch.hftm.ggq.xsl.GGQ">
-    <xsl:output method="xml"/>
+    <xsl:output method="xml" encoding="utf-8" indent="yes"
+                xslt:indent-amount="3" xmlns:xslt="http://xml.apache.org/xslt" />
     <xsl:param name="BASE_PACKAGE" select="'ch.example'"/>
     <xsl:param name="PROJECT_NAME" select="'code-with-quarkus'"/>
     <xsl:template match="/">
@@ -29,6 +30,7 @@
                 <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
                 <quarkus.platform.version>1.11.3.Final</quarkus.platform.version>
                 <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
+                <testcontainers.version>1.15.0-rc2</testcontainers.version>
             </properties>
             <dependencyManagement>
                 <dependencies>
@@ -106,6 +108,24 @@
                     <groupId>org.assertj</groupId>
                     <artifactId>assertj-core</artifactId>
                     <version>3.18.1</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.testcontainers</groupId>
+                    <artifactId>junit-jupiter</artifactId>
+                    <version>${testcontainers.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.testcontainers</groupId>
+                    <artifactId>testcontainers</artifactId>
+                    <version>${testcontainers.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.testcontainers</groupId>
+                    <artifactId>mongodb</artifactId>
+                    <version>${testcontainers.version}</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>

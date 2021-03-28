@@ -44,7 +44,7 @@ public class XmlEntityCodeGeneratorImpl implements XmlEntityCodeGenerator {
                 .peek(e -> modelTemplateTransformer.transformEntity(e, projectModel, entityTemplates))
                 .forEach(System.out::println);
 
-        modelTemplateTransformer.transformNonEntity(projectModel, defaultTemplates);
+        modelTemplateTransformer.transformNonEntity(projectModel, defaultTemplates, xmlPath);
     }
 
 }
