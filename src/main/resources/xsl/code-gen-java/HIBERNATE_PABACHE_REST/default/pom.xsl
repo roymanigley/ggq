@@ -2,7 +2,8 @@
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:xalan="http://xml.apache.org/xalan"
                 xmlns:ggq="xalan://ch.hftm.ggq.xsl.GGQ">
-    <xsl:output method="xml" />
+    <xsl:output method="xml" encoding="utf-8" indent="yes"
+                xslt:indent-amount="3" xmlns:xslt="http://xml.apache.org/xslt" />
     <xsl:param name="BASE_PACKAGE" select="'ch.example'"/>
     <xsl:param name="PROJECT_NAME" select="'code-with-quarkus'"/>
     <xsl:template match="/"><project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"

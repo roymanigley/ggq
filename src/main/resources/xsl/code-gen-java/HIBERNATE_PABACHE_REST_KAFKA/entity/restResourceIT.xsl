@@ -9,50 +9,53 @@
 import io.quarkus.panache.common.Page;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.common.QuarkusTestResource;
-import org.bson.types.ObjectId;
+import io.restassured.RestAssured;
+import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
-import java.util.List;
+import javax.ws.rs.core.MediaType;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.hamcrest.Matchers.*;
 import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 
 import <xsl:value-of select="concat($BASE_PACKAGE, '.service.dto.', entity/@name, 'Dto')" />;
 import <xsl:value-of select="concat($BASE_PACKAGE, '.service.', entity/@name, 'Service')" />;
 import <xsl:value-of select="concat($BASE_PACKAGE, '.util.', entity/@name, 'TestUtil')" />;
-import <xsl:value-of select="concat($BASE_PACKAGE, '.conf.MongoTestResourceLifecycleManager')" />;
+import <xsl:value-of select="concat($BASE_PACKAGE, '.conf.KafkaTestResourceLifecycleManager')" />;
 
 @QuarkusTest
-@QuarkusTestResource(MongoTestResourceLifecycleManager.class)
+@QuarkusTestResource(KafkaTestResourceLifecycleManager.class)
 public class <xsl:value-of select="entity/@name" />ResourceIT {
 
     @Inject
     <xsl:value-of select="entity/@name" />Service service;
+
+    @Inject
+    EntityManager em;
 
     private <xsl:value-of select="entity/@name" />Dto record;
 
     @BeforeEach
     @Transactional
     public void beforeEach() {
-        record = <xsl:value-of select="entity/@name" />TestUtil.createRandomDto();
+        record = <xsl:value-of select="entity/@name" />TestUtil.createRandomDto(em);
     }
 
     private Integer countRecords() {
-        return service.findAll(Page.of(0,999999)).onItem().transform(List::size).await().indefinitely();
+        return service.findAll(Page.ofSize(9999999)).size();
     }
 
     @Test
     public void shouldFindAllRecords() {
         final Integer recordsCount = countRecords();
         given()
-        .when().get("api/<xsl:value-of select="ggq:toLowerCase(entity/@name)"/>/?size=999999")
+        .when().get("api/<xsl:value-of select="ggq:toLowerCase(entity/@name)"/>/")
             .then()
             .statusCode(Status.OK.getStatusCode())
             .body("$.size()", is(recordsCount));
@@ -60,22 +63,24 @@ public class <xsl:value-of select="entity/@name" />ResourceIT {
 
     @Test
     public void shouldFindRecordById() {
-        record = service.save(record).await().indefinitely();
+        record = service.save(record);
         given()
-            .when().get("api/<xsl:value-of select="ggq:toLowerCase(entity/@name)"/>/" + record.getId())
+            .when().get("api/<xsl:value-of select="ggq:toLowerCase(entity/@name)"/>/" + record.getId().intValue())
             .then()
             .statusCode(Status.OK.getStatusCode())
-            .body("id", is(record.getId()))<xsl:for-each select="entity/variables/variable[@required = 'true']">
+            .body("id", is(record.getId().intValue()))<xsl:for-each select="entity/variables/variable[@required = 'true']">
             .body("<xsl:value-of select="@name" />", is(record.get<xsl:value-of select="ggq:firstToUpperCase(@name)" />()<xsl:choose><xsl:when test="@type = 'Double'">.floatValue()</xsl:when><xsl:otherwise> + ""</xsl:otherwise></xsl:choose>))</xsl:for-each>
             <xsl:for-each select="entity/relations/relation[@required = 'true']">
-            .body("<xsl:value-of select="ggq:firstToLowerCase(concat(@name, 'Id'))" />", is(record.get<xsl:value-of select="ggq:firstToUpperCase(concat(@name, 'Id'))" />()))
+            .body("<xsl:value-of select="ggq:firstToLowerCase(concat(@name, 'Id'))" />", is(record.get<xsl:value-of select="ggq:firstToUpperCase(concat(@name, 'Id'))" />().intValue()))
             </xsl:for-each>;
     }
 
+        <xsl:value-of select="ggq:firstToUpperCase(@name)" />
     @Test
     public void shouldNotFindRecordById() {
+        record = service.save(record);
         given()
-        .when().get("api/<xsl:value-of select="ggq:toLowerCase(entity/@name)"/>/" + new ObjectId().toHexString())
+        .when().get("api/<xsl:value-of select="ggq:toLowerCase(entity/@name)"/>/-1")
             .then()
             .statusCode(Status.NOT_FOUND.getStatusCode());
     }
@@ -93,13 +98,13 @@ public class <xsl:value-of select="entity/@name" />ResourceIT {
             .body("id", notNullValue())<xsl:for-each select="entity/variables/variable[@required = 'true']">
             .body("<xsl:value-of select="@name" />", is(record.get<xsl:value-of select="ggq:firstToUpperCase(@name)" />()<xsl:choose><xsl:when test="@type = 'Double'">.floatValue()</xsl:when><xsl:otherwise> + ""</xsl:otherwise></xsl:choose>))</xsl:for-each>
             <xsl:for-each select="entity/relations/relation[@required = 'true']">
-            .body("<xsl:value-of select="ggq:firstToLowerCase(concat(@name, 'Id'))" />", is(record.get<xsl:value-of select="ggq:firstToUpperCase(concat(@name, 'Id'))" />()))
+            .body("<xsl:value-of select="ggq:firstToLowerCase(concat(@name, 'Id'))" />", is(record.get<xsl:value-of select="ggq:firstToUpperCase(concat(@name, 'Id'))" />().intValue()))
             </xsl:for-each>;
     }
 
     @Test
     public void shouldFailCreateBecauseIdAlreadyExists() {
-        record = service.save(record).await().indefinitely();
+        record = service.save(record);
         given()
             .when()
             .body(record)
@@ -125,10 +130,11 @@ public class <xsl:value-of select="entity/@name" />ResourceIT {
             .statusCode(Status.BAD_REQUEST.getStatusCode());
     }
     </xsl:for-each>
+
     <xsl:for-each select="entity/variables/variable[@required = 'true']">
     @Test
     public void validationShouldFailOnUpdate_missing_<xsl:value-of select="@name" />() {
-        record = service.save(record).await().indefinitely()
+        record = service.save(record)
             .<xsl:value-of select="@name" />(null);
         given()
             .when()
@@ -140,6 +146,7 @@ public class <xsl:value-of select="entity/@name" />ResourceIT {
             .statusCode(Status.BAD_REQUEST.getStatusCode());
     }
     </xsl:for-each>
+
     <xsl:for-each select="entity/relations/relation[@required = 'true']">
     @Test
     public void validationShouldFailOnCreate_missing_<xsl:value-of select="@name" />Id() {
@@ -158,7 +165,7 @@ public class <xsl:value-of select="entity/@name" />ResourceIT {
     <xsl:for-each select="entity/relations/relation[@required = 'true']">
     @Test
     public void validationShouldFailOnUpdate_missing_<xsl:value-of select="@name" />Id() {
-        record = service.save(record).await().indefinitely()
+        record = service.save(record)
             .<xsl:value-of select="@name" />Id(null);
         given()
             .when()
@@ -185,7 +192,7 @@ public class <xsl:value-of select="entity/@name" />ResourceIT {
 
     @Test
     public void shouldUpdate() {
-        record = service.save(record).await().indefinitely();
+        record = service.save(record);
         given()
             .when()
             .body(record)
@@ -197,7 +204,7 @@ public class <xsl:value-of select="entity/@name" />ResourceIT {
             .body("id", notNullValue())<xsl:for-each select="entity/variables/variable[@required = 'true']">
             .body("<xsl:value-of select="@name" />", is(record.get<xsl:value-of select="ggq:firstToUpperCase(@name)" />()<xsl:choose><xsl:when test="@type = 'Double'">.floatValue()</xsl:when><xsl:otherwise> + ""</xsl:otherwise></xsl:choose>))</xsl:for-each>
             <xsl:for-each select="entity/relations/relation[@required = 'true']">
-            .body("<xsl:value-of select="ggq:firstToLowerCase(concat(@name, 'Id'))" />", is(record.get<xsl:value-of select="ggq:firstToUpperCase(concat(@name, 'Id'))" />()))
+            .body("<xsl:value-of select="ggq:firstToLowerCase(concat(@name, 'Id'))" />", is(record.get<xsl:value-of select="ggq:firstToUpperCase(concat(@name, 'Id'))" />().intValue()))
             </xsl:for-each>;
     }
 
@@ -215,18 +222,18 @@ public class <xsl:value-of select="entity/@name" />ResourceIT {
 
     @Test
     public void shouldDelete() {
-        record = service.save(record).await().indefinitely();
+        record = service.save(record);
 
         final Integer recordsCountBeforeDelete = countRecords();
         given()
             .when()
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .delete("api/<xsl:value-of select="ggq:toLowerCase(entity/@name)"/>/" + record.getId())
+            .delete("api/<xsl:value-of select="ggq:toLowerCase(entity/@name)"/>/" + record.getId().intValue())
             .then()
             .statusCode(Status.ACCEPTED.getStatusCode());
 
-            assertThat(!service.findById(record.getId()).await().indefinitely().isPresent()).isTrue();
+            assertThat(!service.findById(record.getId()).isPresent()).isTrue();
             assertThat(recordsCountBeforeDelete ).isGreaterThan(countRecords());
     }
 }

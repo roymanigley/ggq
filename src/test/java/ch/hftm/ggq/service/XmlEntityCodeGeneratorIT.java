@@ -62,15 +62,21 @@ public class XmlEntityCodeGeneratorIT {
     @Test
     void testMONGO_PANACHE_REST_Templates() throws IOException, URISyntaxException {
         final TemplateType templateType = TemplateType.MONGO_PANACHE_REST;
-        // IT skipped because it neads a running mongo db instance
-        testTemplate(templateType, true, true);
+        testTemplate(templateType, true, false);
     }
 
     @Test
     void testMONGO_PANACHE_REST_OIDC_Templates() throws IOException, URISyntaxException {
         final TemplateType templateType = TemplateType.MONGO_PANACHE_REST_OIDC;
-        // IT skipped because it neads a running mongo db instance
+        // IT skipped because it neads a running KeyCloak
+        // @see https://github.com/quarkusio/quarkus/blob/main/integration-tests/oidc-code-flow/src/test/java/io/quarkus/it/keycloak/KeycloakRealmResourceManager.java
         testTemplate(templateType, true, true);
+    }
+
+    @Test
+    void testHIBERNATE_PANACHE_REST_KAFKA_Templates() throws IOException, URISyntaxException {
+        final TemplateType templateType = TemplateType.HIBERNATE_PANACHE_REST_KAFKA;
+        testTemplate(templateType, true, false);
     }
 
     private void testTemplate(TemplateType templateType, boolean withCleanup, boolean skipIntegrationTests) throws IOException, URISyntaxException {

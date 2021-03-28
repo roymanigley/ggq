@@ -8,6 +8,7 @@
 
 import io.quarkus.panache.common.Page;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.common.QuarkusTestResource;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,8 +27,10 @@ import static org.hamcrest.Matchers.notNullValue;
 import <xsl:value-of select="concat($BASE_PACKAGE, '.service.dto.', entity/@name, 'Dto')" />;
 import <xsl:value-of select="concat($BASE_PACKAGE, '.service.', entity/@name, 'Service')" />;
 import <xsl:value-of select="concat($BASE_PACKAGE, '.util.', entity/@name, 'TestUtil')" />;
+import <xsl:value-of select="concat($BASE_PACKAGE, '.conf.MongoTestResourceLifecycleManager')" />;
 
 @QuarkusTest
+@QuarkusTestResource(MongoTestResourceLifecycleManager.class)
 public class <xsl:value-of select="entity/@name" />ResourceIT {
 
     @Inject
@@ -110,8 +113,37 @@ public class <xsl:value-of select="entity/@name" />ResourceIT {
     <xsl:for-each select="entity/variables/variable[@required = 'true']">
     @Test
     public void validationShouldFailOnCreate_missing_<xsl:value-of select="@name" />() {
+        record.<xsl:value-of select="@name" />(null);
+
+        given()
+            .when()
+            .body(record)
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .post("api/<xsl:value-of select="ggq:toLowerCase(/entity/@name)"/>")
+            .then()
+            .statusCode(Status.BAD_REQUEST.getStatusCode());
+    }
+    </xsl:for-each>
+    <xsl:for-each select="entity/variables/variable[@required = 'true']">
+    @Test
+    public void validationShouldFailOnUpdate_missing_<xsl:value-of select="@name" />() {
         record = service.save(record).await().indefinitely()
             .<xsl:value-of select="@name" />(null);
+        given()
+            .when()
+            .body(record)
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .put("api/<xsl:value-of select="ggq:toLowerCase(/entity/@name)"/>")
+            .then()
+            .statusCode(Status.BAD_REQUEST.getStatusCode());
+    }
+    </xsl:for-each>
+    <xsl:for-each select="entity/relations/relation[@required = 'true']">
+    @Test
+    public void validationShouldFailOnCreate_missing_<xsl:value-of select="@name" />Id() {
+        record.<xsl:value-of select="@name" />Id(null);
         given()
             .when()
             .body(record)
@@ -124,7 +156,7 @@ public class <xsl:value-of select="entity/@name" />ResourceIT {
     </xsl:for-each>
     <xsl:for-each select="entity/relations/relation[@required = 'true']">
     @Test
-    public void validationShouldFailOnCreate_missing_<xsl:value-of select="@name" />Id() {
+    public void validationShouldFailOnUpdate_missing_<xsl:value-of select="@name" />Id() {
         record = service.save(record).await().indefinitely()
             .<xsl:value-of select="@name" />Id(null);
         given()
@@ -132,7 +164,7 @@ public class <xsl:value-of select="entity/@name" />ResourceIT {
             .body(record)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .post("api/<xsl:value-of select="ggq:toLowerCase(/entity/@name)"/>")
+            .put("api/<xsl:value-of select="ggq:toLowerCase(/entity/@name)"/>")
             .then()
             .statusCode(Status.BAD_REQUEST.getStatusCode());
     }

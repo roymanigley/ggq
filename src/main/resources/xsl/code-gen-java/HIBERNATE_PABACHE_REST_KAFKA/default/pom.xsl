@@ -6,8 +6,7 @@
                 xslt:indent-amount="3" xmlns:xslt="http://xml.apache.org/xslt" />
     <xsl:param name="BASE_PACKAGE" select="'ch.example'"/>
     <xsl:param name="PROJECT_NAME" select="'code-with-quarkus'"/>
-    <xsl:template match="/">
-        <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
+    <xsl:template match="/"><project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
                  xmlns="http://maven.apache.org/POM/4.0.0"
                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <modelVersion>4.0.0</modelVersion>
@@ -15,17 +14,18 @@
             <artifactId><xsl:value-of select="ggq:toLowerCase($PROJECT_NAME)" /></artifactId>
             <version>1.0.0-SNAPSHOT</version>
             <properties>
-                <surefire-plugin.version>2.22.1</surefire-plugin.version>
-                <maven.compiler.target>11</maven.compiler.target>
-                <quarkus.platform.version>1.11.0.Final</quarkus.platform.version>
-                <maven.compiler.source>11</maven.compiler.source>
-                <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-                <quarkus.platform.artifact-id>quarkus-universe-bom</quarkus.platform.artifact-id>
-                <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-                <maven.compiler.parameters>true</maven.compiler.parameters>
-                <quarkus-plugin.version>1.11.0.Final</quarkus-plugin.version>
                 <compiler-plugin.version>3.8.1</compiler-plugin.version>
+                <maven.compiler.parameters>true</maven.compiler.parameters>
+                <maven.compiler.source>1.8</maven.compiler.source>
+                <maven.compiler.target>1.8</maven.compiler.target>
+                <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+                <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+                <quarkus-plugin.version>1.11.3.Final</quarkus-plugin.version>
+                <quarkus.platform.artifact-id>quarkus-universe-bom</quarkus.platform.artifact-id>
                 <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
+                <quarkus.platform.version>1.11.3.Final</quarkus.platform.version>
+                <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
+                <testcontainers.version>1.15.0-rc2</testcontainers.version>
             </properties>
             <dependencyManagement>
                 <dependencies>
@@ -39,6 +39,10 @@
                 </dependencies>
             </dependencyManagement>
             <dependencies>
+                <dependency>
+                    <groupId>io.quarkus</groupId>
+                    <artifactId>quarkus-smallrye-reactive-messaging-kafka</artifactId>
+                </dependency>
                 <dependency>
                     <groupId>io.quarkus</groupId>
                     <artifactId>quarkus-hibernate-orm</artifactId>
@@ -61,15 +65,23 @@
                 </dependency>
                 <dependency>
                     <groupId>io.quarkus</groupId>
-                    <artifactId>quarkus-arc</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>io.quarkus</groupId>
-                    <artifactId>quarkus-smallrye-openapi</artifactId>
+                    <artifactId>quarkus-hibernate-orm-panache</artifactId>
                 </dependency>
                 <dependency>
                     <groupId>io.quarkus</groupId>
                     <artifactId>quarkus-jdbc-postgresql</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>io.quarkus</groupId>
+                    <artifactId>quarkus-arc</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>io.quarkus</groupId>
+                    <artifactId>quarkus-resteasy</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>io.quarkus</groupId>
+                    <artifactId>quarkus-smallrye-openapi</artifactId>
                 </dependency>
                 <dependency>
                     <groupId>io.quarkus</groupId>
@@ -92,9 +104,33 @@
                     <scope>test</scope>
                 </dependency>
                 <dependency>
+                    <groupId>org.jboss.logmanager</groupId>
+                    <artifactId>log4j2-jboss-logmanager</artifactId>
+                </dependency>
+                <dependency>
                     <groupId>org.assertj</groupId>
                     <artifactId>assertj-core</artifactId>
                     <version>3.18.1</version>
+                    <scope>test</scope>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.testcontainers</groupId>
+                    <artifactId>junit-jupiter</artifactId>
+                    <version>${testcontainers.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.testcontainers</groupId>
+                    <artifactId>testcontainers</artifactId>
+                    <version>${testcontainers.version}</version>
+                    <scope>test</scope>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.testcontainers</groupId>
+                    <artifactId>kafka</artifactId>
+                    <version>${testcontainers.version}</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
@@ -146,6 +182,8 @@
                             <excludes>
                                 <exclude>**/domain/**/*</exclude>
                                 <exclude>**/rest/exceptions/**/*</exclude>
+                                <exclude>**/rest/dto/**/*</exclude>
+                                <exclude>**/repository/impl/**/*</exclude>
                             </excludes>
                         </configuration>
                         <executions>
@@ -224,11 +262,8 @@
                                         </goals>
                                         <configuration>
                                             <systemPropertyVariables>
-                                                <native.image.path>
-                                                    ${project.build.directory}/${project.build.finalName}-runner
-                                                </native.image.path>
-                                                <java.util.logging.manager>org.jboss.logmanager.LogManager
-                                                </java.util.logging.manager>
+                                                <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
+                                                <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                                                 <maven.home>${maven.home}</maven.home>
                                             </systemPropertyVariables>
                                         </configuration>

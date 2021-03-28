@@ -30,7 +30,7 @@ import <xsl:value-of select="concat($BASE_PACKAGE, '.service.', entity/@name, 'S
 import <xsl:value-of select="concat($BASE_PACKAGE, '.service.dto.', entity/@name, 'Dto')" />;
 import <xsl:value-of select="concat($BASE_PACKAGE, '.web.rest.exceptions.ExceptionDto')" />;
 
-@Tag(name = "<xsl:value-of select="concat($BASE_PACKAGE, '.domain.', entity/@name)" />Resource")
+@Tag(name = "<xsl:value-of select="concat($BASE_PACKAGE, '.web.rest.', entity/@name)" />Resource")
 @Path("/api/<xsl:value-of select="str:toLowerCase(str:new(entity/@name))"/>")
 @RequestScoped
 public class <xsl:value-of select="entity/@name" />Resource {

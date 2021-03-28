@@ -44,12 +44,13 @@ public class ModelTemplateTransformerImpl implements ModelTemplateTransformer {
     }
 
     @Override
-    public void transformNonEntity(ProjectModel projectModel, Map<String, String> nonEntityTemplates) {
+    public void transformNonEntity(ProjectModel projectModel, Map<String, String> nonEntityTemplates, Path xmlPath) {
         try {
+            final String entitiesXml = Files.readString(xmlPath);
             for (Map.Entry<String, String> entry : nonEntityTemplates.entrySet()) {
                 final String path = entry.getKey();
                 final String template = entry.getValue();
-                transformTemplate(projectModel, path, template, EMPTY_XML);
+                transformTemplate(projectModel, path, template, entitiesXml);
             }
         } catch (IOException | TransformerException e) {
             throw new RuntimeException(e);
