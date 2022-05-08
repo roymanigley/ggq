@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.mockito.MockitoAnnotations.openMocks;
 
 public class XslTransformCommandTest {
 
@@ -58,7 +58,7 @@ public class XslTransformCommandTest {
 
     @BeforeEach
     void beforeEach() {
-        initMocks(this);
+        openMocks(this);
         xmlToHtmlDocumentationCommand = new XslTransformCommand(xslTransformerService);
     }
 

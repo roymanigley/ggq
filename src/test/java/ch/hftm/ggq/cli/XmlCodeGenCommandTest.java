@@ -91,6 +91,7 @@ public class XmlCodeGenCommandTest {
         codeGeneratorCommand.input = VALID_XML_PATH.toAbsolutePath().toString();
         codeGeneratorCommand.basePackage = "com.lala.ioio";
         codeGeneratorCommand.projectDir = "/tmp/myProject";
+        codeGeneratorCommand.templateType = TemplateType.JPA_REST;
 
         codeGeneratorCommand.run();
 
